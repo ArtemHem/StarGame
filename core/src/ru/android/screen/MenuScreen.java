@@ -15,19 +15,18 @@ public class MenuScreen extends Base2DScreen{
 
     private Vector2 pos;
     private Vector2 v;
+
     private Vector2 touch;
-    private Vector2 newPos;
-    private Vector2 newV;
+    private Vector2 buf;
 
     @Override
     public void show() {
         super.show();
         img = new Texture("badlogic.jpg");
-        touch = new Vector2();
-        v = new Vector2(1f, 1f);
         pos = new Vector2(0,0);
-        newPos = new Vector2(0,0);
-        newV = new Vector2();
+        v = new Vector2(1f, 1f);
+        touch = new Vector2();
+        buf = new Vector2();
     }
 
     @Override
@@ -35,11 +34,15 @@ public class MenuScreen extends Base2DScreen{
         super.render(delta);
         Gdx.gl.glClearColor(1, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        buf.set(touch);
+        if (buf.sub(pos).len() >= 0.5f) {
+            pos.add(v);
+        }else{
+            pos.set(touch);
+        }
         batch.begin();
         batch.draw(img, pos.x, pos.y);
         batch.end();
-
-        pos.add(v);
     }
 
     @Override
@@ -52,6 +55,8 @@ public class MenuScreen extends Base2DScreen{
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         super.touchDown(screenX, screenY, pointer, button);
         touch.set(screenX, Gdx.graphics.getHeight() - screenY);
+        v.set(touch.cpy().sub(pos).setLength(0.5f));
+        System.out.println("touch X = " + touch.x + " touch Y = " + touch.y);
         return false;
     }
 }
