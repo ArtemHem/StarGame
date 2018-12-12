@@ -22,7 +22,7 @@ public class Rect {
 
     public float getLeft(){ return pos.x - halfWidth;}
 
-    public float getTop(){return pos.y - halfHeight;}
+    public float getTop(){return pos.y + halfHeight;}
 
     public float getRight(){return pos.x + halfWidth;}
 
@@ -48,7 +48,7 @@ public class Rect {
 
     public void setRight(float right) {pos.x = right - halfWidth;}
 
-    public void setBottom(float bottom){pos.x = bottom + halfHeight;}
+    public void setBottom(float bottom){pos.y = bottom + halfHeight;}
 
     public void setWidth(float width){this.halfWidth = width/2f;}
 

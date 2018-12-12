@@ -1,5 +1,6 @@
 package ru.android.base;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
@@ -28,7 +29,10 @@ public class Base2DScreen implements Screen, InputProcessor {
 
     private Vector2 touch = new Vector2();
 
-    public Base2DScreen() {
+    protected Game game;
+
+    public Base2DScreen(Game game) {
+        this.game = game;
         this.screenBounds = new Rect();
         this.worldBounds = new Rect();
         this.glBounds = new Rect(0, 0, 1f, 1f);
@@ -57,7 +61,7 @@ public class Base2DScreen implements Screen, InputProcessor {
         screenBounds.setBottom(0);
 
         float aspect = width / (float)height;
-        worldBounds.setHeight(2f);
+        worldBounds.setHeight(1f);
         worldBounds.setWidth(1f*aspect);
         MatrixUtils.calcTransitionMatrix(worldToGl,worldBounds,glBounds);
         batch.setProjectionMatrix(worldToGl);
