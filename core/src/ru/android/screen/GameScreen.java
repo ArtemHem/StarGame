@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import ru.android.base.Base2DScreen;
 import ru.android.math.Rect;
+import ru.android.pool.BulletPool;
 import ru.android.sprite.Background;
 import ru.android.sprite.MainShip;
 import ru.android.sprite.Star;
@@ -28,6 +29,8 @@ public class GameScreen extends Base2DScreen {
 
     private MainShip mainShip;
 
+    private BulletPool bulletPool;
+
     public GameScreen(Game game) {
         super(game);
     }
@@ -42,7 +45,8 @@ public class GameScreen extends Base2DScreen {
         for (int i = 0; i < star.length; i++) {
             star[i] = new Star(textureAtlas);
         }
-        mainShip = new MainShip(textureAtlas);
+        bulletPool = new BulletPool();
+        mainShip = new MainShip(textureAtlas, bulletPool);
     }
 
     @Override
@@ -58,6 +62,7 @@ public class GameScreen extends Base2DScreen {
             star[i].update(delta);
         }
         mainShip.update(delta);
+        bulletPool.updateActiveSprites(delta);
     }
 
     public void checkCollisions() {
@@ -65,7 +70,7 @@ public class GameScreen extends Base2DScreen {
     }
 
     public void deleteAllDestroyed() {
-
+        bulletPool.freeAllDestroyedActiveSprites();
     }
 
     public void draw() {
@@ -78,6 +83,7 @@ public class GameScreen extends Base2DScreen {
             star[i].draw(batch);
         }
         mainShip.draw(batch);
+        bulletPool.drawActiveSprites(batch);
         batch.end();
     }
 
@@ -95,6 +101,7 @@ public class GameScreen extends Base2DScreen {
     public void dispose() {
         bg.dispose();
         textureAtlas.dispose();
+        bulletPool.dispose();
         super.dispose();
     }
 

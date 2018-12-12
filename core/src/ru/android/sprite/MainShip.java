@@ -76,7 +76,7 @@ public class MainShip extends Sprite {
                 }
                 break;
             case Input.Keys.UP:
-                frame = 0;
+                shoot();
                 break;
         }
         return false;
