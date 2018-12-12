@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector2;
 import ru.android.base.Base2DScreen;
 import ru.android.math.Rect;
 import ru.android.sprite.Background;
+import ru.android.sprite.MainShip;
 import ru.android.sprite.Star;
 
 public class GameScreen extends Base2DScreen {
@@ -24,6 +25,8 @@ public class GameScreen extends Base2DScreen {
     private Background background;
 
     private Star[] star;
+
+    private MainShip mainShip;
 
     public GameScreen(Game game) {
         super(game);
@@ -39,6 +42,7 @@ public class GameScreen extends Base2DScreen {
         for (int i = 0; i < star.length; i++) {
             star[i] = new Star(textureAtlas);
         }
+        mainShip = new MainShip(textureAtlas);
     }
 
     @Override
@@ -53,6 +57,7 @@ public class GameScreen extends Base2DScreen {
         for (int i = 0; i < star.length; i++) {
             star[i].update(delta);
         }
+        mainShip.update(delta);
     }
 
     public void checkCollisions() {
@@ -72,6 +77,7 @@ public class GameScreen extends Base2DScreen {
         for (int i = 0; i < star.length; i++) {
             star[i].draw(batch);
         }
+        mainShip.draw(batch);
         batch.end();
     }
 
@@ -82,6 +88,7 @@ public class GameScreen extends Base2DScreen {
         for (int i = 0; i < star.length; i++) {
             star[i].resize(worldBounds);
         }
+        mainShip.resize(worldBounds);
     }
 
     @Override
@@ -93,11 +100,25 @@ public class GameScreen extends Base2DScreen {
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
+        mainShip.touchDown(touch, pointer);
         return super.touchDown(touch, pointer);
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
+        mainShip.touchUp(touch, pointer);
         return super.touchUp(touch, pointer);
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        mainShip.keyDown(keycode);
+        return super.keyDown(keycode);
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        mainShip.keyUp(keycode);
+        return super.keyUp(keycode);
     }
 }
