@@ -11,6 +11,7 @@ import ru.android.base.Ship;
 import ru.android.base.Sprite;
 import ru.android.math.Rect;
 import ru.android.pool.BulletPool;
+import ru.android.pool.ExplosionPool;
 
 public class MainShip extends Ship {
 
@@ -24,10 +25,11 @@ public class MainShip extends Ship {
     private int leftPointer = INVALID_POINTER;
     private int rightPointer = INVALID_POINTER;
 
-    public MainShip(TextureAtlas atlas, BulletPool bulletPool, Sound sound) {
+    public MainShip(TextureAtlas atlas, BulletPool bulletPool, ExplosionPool explosionPool, Sound sound) {
         super(atlas.findRegion("main_ship"),1,2,2,sound);
         setHeightProportion(0.15f);
         this.bulletPool = bulletPool;
+        this.explosionPool = explosionPool;
         this.reloadInterval = 0.2f;
         this.bulletRegion = atlas.findRegion("bulletMainShip");
         this.bulletHeight = 0.01f;
@@ -148,5 +150,14 @@ public class MainShip extends Ship {
             stop();
         }
     }
+
+    public boolean isBulletCollision(Rect bullet) {
+        return!(bullet.getRight() < getLeft()
+                || bullet.getLeft() > getRight()
+                || bullet.getBottom() > pos.y
+                || bullet.getTop() < getBottom());
+    }
+
+
 
 }
