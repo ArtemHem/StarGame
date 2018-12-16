@@ -21,6 +21,7 @@ import ru.android.sprite.Background;
 import ru.android.sprite.Bullet;
 import ru.android.sprite.Enemy;
 import ru.android.sprite.MainShip;
+import ru.android.sprite.MessageGameOver;
 import ru.android.sprite.Star;
 import ru.android.utils.EnemiesEmitter;
 
@@ -50,6 +51,12 @@ public class GameScreen extends Base2DScreen {
     private Sound enemyShipShootSound;
     private Sound explosionSound;
 
+    private MessageGameOver messageGameOver;
+
+    private enum State {PLAYING, GAME_OVER}
+
+    private State state;
+
     private ExplosionPool explosionPool;
 
 
@@ -78,6 +85,7 @@ public class GameScreen extends Base2DScreen {
         mainShip = new MainShip(textureAtlas, bulletPool,explosionPool,mainShipShootSound);
         enemyPool = new EnemyPool(bulletPool,explosionPool, mainShip,worldBounds,enemyShipShootSound);
         enemiesEmitter = new EnemiesEmitter(worldBounds,enemyPool,textureAtlas);
+        messageGameOver = new MessageGameOver(textureAtlas);
     }
 
     @Override
@@ -92,13 +100,19 @@ public class GameScreen extends Base2DScreen {
         for (int i = 0; i < star.length; i++) {
             star[i].update(delta);
         }
-        if (!mainShip.isDestroyed()) {
-            mainShip.update(delta);
-        }
-        bulletPool.updateActiveSprites(delta);
-        enemyPool.updateActiveSprites(delta);
         explosionPool.updateActiveSprites(delta);
-        enemiesEmitter.generate(delta);
+        switch (state) {
+            case PLAYING:
+                if (!mainShip.isDestroyed()) {
+                    mainShip.update(delta);
+                }
+                bulletPool.updateActiveSprites(delta);
+                enemyPool.updateActiveSprites(delta);
+                enemiesEmitter.generate(delta);
+                break;
+            case GAME_OVER:
+                break;
+        }
     }
 
     public void checkCollisions() {
@@ -211,5 +225,15 @@ public class GameScreen extends Base2DScreen {
     public boolean keyUp(int keycode) {
         mainShip.keyUp(keycode);
         return super.keyUp(keycode);
+    }
+
+    private void startNewGame() {
+        state = State.PLAYING;
+
+        mainShip.setToNewGame();
+
+        bulletPool.freeAllActiveObjects();
+        enemyPool.freeAllActiveObjects();
+        explosionPool.freeAllActiveObjects();
     }
 }

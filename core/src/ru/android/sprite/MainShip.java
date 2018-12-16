@@ -35,7 +35,13 @@ public class MainShip extends Ship {
         this.bulletHeight = 0.01f;
         this.bulletV.set(0,0.5f);
         this.bulletDamage = 1;
+        setToNewGame();
+    }
+
+    public void setToNewGame() {
+        pos.x = worldBounds.pos.x;
         this.hp = 100;
+        setDestroyed(false);
     }
 
     @Override
