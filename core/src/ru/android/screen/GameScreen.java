@@ -23,6 +23,7 @@ import ru.android.sprite.Enemy;
 import ru.android.sprite.MainShip;
 import ru.android.sprite.MessageGameOver;
 import ru.android.sprite.Star;
+import ru.android.sprite.StartNewGame;
 import ru.android.utils.EnemiesEmitter;
 
 public class GameScreen extends Base2DScreen {
@@ -52,6 +53,7 @@ public class GameScreen extends Base2DScreen {
     private Sound explosionSound;
 
     private MessageGameOver messageGameOver;
+    private StartNewGame startNewGame;
 
     private enum State {PLAYING, GAME_OVER}
 
@@ -82,10 +84,12 @@ public class GameScreen extends Base2DScreen {
         explosionPool = new ExplosionPool(textureAtlas,explosionSound);
         mainShipShootSound = Gdx.audio.newSound(Gdx.files.internal("sounds/laser.wav"));
         enemyShipShootSound = Gdx.audio.newSound(Gdx.files.internal("sounds/bullet.wav"));
-        mainShip = new MainShip(textureAtlas, bulletPool,explosionPool,mainShipShootSound);
+        mainShip = new MainShip(textureAtlas, bulletPool,explosionPool,worldBounds,mainShipShootSound);
         enemyPool = new EnemyPool(bulletPool,explosionPool, mainShip,worldBounds,enemyShipShootSound);
         enemiesEmitter = new EnemiesEmitter(worldBounds,enemyPool,textureAtlas);
         messageGameOver = new MessageGameOver(textureAtlas);
+        startNewGame = new StartNewGame(textureAtlas,this);
+        startNewGame();
     }
 
     @Override
@@ -126,6 +130,9 @@ public class GameScreen extends Base2DScreen {
                 enemy.setDestroyed(true);
                 enemy.boom();
                 mainShip.damage(mainShip.getHp());
+                if (mainShip.isDestroyed()) {
+                    state = state.GAME_OVER;
+                }
                 return;
             }
         }
@@ -153,6 +160,9 @@ public class GameScreen extends Base2DScreen {
             if (mainShip.isBulletCollision(bullet)) {
                 bullet.setDestroyed(true);
                 mainShip.damage(bullet.getDamage());
+                if (mainShip.isDestroyed()) {
+                    state = State.GAME_OVER;
+                }
             }
         }
     }
@@ -172,12 +182,20 @@ public class GameScreen extends Base2DScreen {
         for (int i = 0; i < star.length; i++) {
             star[i].draw(batch);
         }
-        if (!mainShip.isDestroyed()) {
-            mainShip.draw(batch);
-        }
-        bulletPool.drawActiveSprites(batch);
-        enemyPool.drawActiveSprites(batch);
         explosionPool.drawActiveSprites(batch);
+        switch (state) {
+            case PLAYING:
+                if (!mainShip.isDestroyed()) {
+                    mainShip.draw(batch);
+                }
+                bulletPool.drawActiveSprites(batch);
+                enemyPool.drawActiveSprites(batch);
+                break;
+            case GAME_OVER:
+                messageGameOver.draw(batch);
+                startNewGame.draw(batch);
+                break;
+        }
         batch.end();
     }
 
@@ -205,29 +223,47 @@ public class GameScreen extends Base2DScreen {
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
-        mainShip.touchDown(touch, pointer);
+        switch (state) {
+            case PLAYING:
+                mainShip.touchDown(touch, pointer);
+                break;
+            case GAME_OVER:
+                startNewGame.touchDown(touch, pointer);
+                break;
+        }
         return super.touchDown(touch, pointer);
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
-        mainShip.touchUp(touch, pointer);
+        switch (state) {
+            case PLAYING:
+                mainShip.touchUp(touch, pointer);
+                break;
+            case GAME_OVER:
+                startNewGame.touchUp(touch, pointer);
+                break;
+        }
         return super.touchUp(touch, pointer);
     }
 
     @Override
     public boolean keyDown(int keycode) {
-        mainShip.keyDown(keycode);
+        if (state == State.PLAYING) {
+            mainShip.keyDown(keycode);
+        }
         return super.keyDown(keycode);
     }
 
     @Override
     public boolean keyUp(int keycode) {
-        mainShip.keyUp(keycode);
+        if (state == State.PLAYING) {
+            mainShip.keyUp(keycode);
+        }
         return super.keyUp(keycode);
     }
 
-    private void startNewGame() {
+    public void startNewGame() {
         state = State.PLAYING;
 
         mainShip.setToNewGame();
