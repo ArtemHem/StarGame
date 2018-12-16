@@ -49,6 +49,8 @@ public class EnemiesEmitter {
 
     private EnemyPool enemyPool;
 
+    private int level;
+
     public EnemiesEmitter(Rect worldBounds, EnemyPool enemyPool, TextureAtlas atlas) {
         this.worldBounds = worldBounds;
         this.enemyPool = enemyPool;
@@ -64,7 +66,8 @@ public class EnemiesEmitter {
         this.bulletRegion = atlas.findRegion("bulletEnemy");
     }
 
-    public void generate(float delta) {
+    public void generate(float delta, int frags) {
+        level = frags / 20 + 1;
         generateTimer += delta;
         if (generateTimer >= generateInterval) {
             generateTimer = 0f;
@@ -78,7 +81,7 @@ public class EnemiesEmitter {
                         bulletRegion,
                         ENEMY_SMALL_BULLET_HEIGHT,
                         ENEMY_SMALL_BULLET_VY,
-                        ENEMY_SMALL_BULLET_DAMAGE,
+                        ENEMY_SMALL_BULLET_DAMAGE * level,
                         ENEMY_SMALL_RELOAD_INTERVAL,
                         ENEMY_SMALL_HEIGHT,
                         ENEMY_SMALL_HP
@@ -90,7 +93,7 @@ public class EnemiesEmitter {
                         bulletRegion,
                         ENEMY_MEDIUM_BULLET_HEIGHT,
                         ENEMY_MEDIUM_BULLET_VY,
-                        ENEMY_MEDIUM_BULLET_DAMAGE,
+                        ENEMY_MEDIUM_BULLET_DAMAGE * level,
                         ENEMY_MEDIUM_RELOAD_INTERVAL,
                         ENEMY_MEDIUM_HEIGHT,
                         ENEMY_MEDIUM_HP
@@ -102,7 +105,7 @@ public class EnemiesEmitter {
                         bulletRegion,
                         ENEMY_BIG_BULLET_HEIGHT,
                         ENEMY_BIG_BULLET_VY,
-                        ENEMY_BIG_BULLET_DAMAGE,
+                        ENEMY_BIG_BULLET_DAMAGE * level,
                         ENEMY_BIG_RELOAD_INTERVAL,
                         ENEMY_BIG_HEIGHT,
                         ENEMY_BIG_HP
@@ -112,5 +115,13 @@ public class EnemiesEmitter {
                     worldBounds.getRight() - enemy.getHalfWidth());
             enemy.setBottom(worldBounds.getTop());
         }
+    }
+
+    public void setToNewGame() {
+        level = 1;
+    }
+
+    public int getLevel() {
+        return level;
     }
 }

@@ -41,6 +41,7 @@ public class MainShip extends Ship {
     }
 
     public void setToNewGame() {
+        stop();
         pos.x = worldBounds.pos.x;
         this.hp = 100;
         setDestroyed(false);

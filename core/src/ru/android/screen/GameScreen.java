@@ -9,10 +9,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Align;
 
 import java.util.List;
 
 import ru.android.base.Base2DScreen;
+import ru.android.base.Font;
 import ru.android.math.Rect;
 import ru.android.pool.BulletPool;
 import ru.android.pool.EnemyPool;
@@ -29,6 +31,11 @@ import ru.android.utils.EnemiesEmitter;
 public class GameScreen extends Base2DScreen {
 
     private static final int START_COUNT = 64;
+    private static final float FONT_SIZE = 0.02f;
+
+    private static final String FRAGS = "Frags: ";
+    private static final String HP = "HP: ";
+    private static final String LEVEL = "Level: ";
 
     private Texture bg;
 
@@ -41,13 +48,11 @@ public class GameScreen extends Base2DScreen {
     private MainShip mainShip;
 
     private BulletPool bulletPool;
-
     private EnemyPool enemyPool;
 
     private EnemiesEmitter enemiesEmitter;
 
     private Music music;
-
     private Sound mainShipShootSound;
     private Sound enemyShipShootSound;
     private Sound explosionSound;
@@ -58,6 +63,14 @@ public class GameScreen extends Base2DScreen {
     private enum State {PLAYING, GAME_OVER}
 
     private State state;
+
+    private int frags;
+
+    private Font font;
+
+    private StringBuilder sbFrags = new StringBuilder();
+    private StringBuilder sbHP = new StringBuilder();
+    private StringBuilder sbLevel = new StringBuilder();
 
     private ExplosionPool explosionPool;
 
@@ -89,13 +102,17 @@ public class GameScreen extends Base2DScreen {
         enemiesEmitter = new EnemiesEmitter(worldBounds,enemyPool,textureAtlas);
         messageGameOver = new MessageGameOver(textureAtlas);
         startNewGame = new StartNewGame(textureAtlas,this);
+        font = new Font("font/font.fnt", "font/font.png");
+        font.setFontSize(FONT_SIZE);
         startNewGame();
     }
 
     @Override
     public void render(float delta) {
         update(delta);
-        checkCollisions();
+        if (state == State.PLAYING) {
+            checkCollisions();
+        }
         deleteAllDestroyed();
         draw();
     }
@@ -112,7 +129,7 @@ public class GameScreen extends Base2DScreen {
                 }
                 bulletPool.updateActiveSprites(delta);
                 enemyPool.updateActiveSprites(delta);
-                enemiesEmitter.generate(delta);
+                enemiesEmitter.generate(delta,frags);
                 break;
             case GAME_OVER:
                 break;
@@ -149,6 +166,9 @@ public class GameScreen extends Base2DScreen {
                 if (enemy.isBulletCollision(bullet)) {
                     enemy.damage(bullet.getDamage());
                     bullet.setDestroyed(true);
+                    if (enemy.isDestroyed()) {
+                        frags++;
+                    }
                 }
             }
         }
@@ -199,6 +219,15 @@ public class GameScreen extends Base2DScreen {
         batch.end();
     }
 
+    public void printInfo() {
+        sbFrags.setLength(0);
+        sbHP.setLength(0);
+        sbLevel.setLength(0);
+        font.draw(batch, sbFrags.append(FRAGS).append(frags),worldBounds.getLeft(),worldBounds.getTop());
+        font.draw(batch, sbHP.append(HP).append(mainShip.getHp()),worldBounds.pos.x,worldBounds.getTop(),Align.center);
+        font.draw(batch, sbLevel.append(LEVEL).append(enemiesEmitter.getLevel()),worldBounds.getRight(),worldBounds.getTop(),Align.right);
+    }
+
     @Override
     public void resize(Rect worldBounds) {
         super.resize(worldBounds);
@@ -218,6 +247,7 @@ public class GameScreen extends Base2DScreen {
         explosionPool.dispose();
         music.dispose();
         mainShipShootSound.dispose();
+        font.dispose();
         super.dispose();
     }
 
@@ -266,7 +296,10 @@ public class GameScreen extends Base2DScreen {
     public void startNewGame() {
         state = State.PLAYING;
 
+        frags = 0;
         mainShip.setToNewGame();
+
+        enemiesEmitter.setToNewGame();
 
         bulletPool.freeAllActiveObjects();
         enemyPool.freeAllActiveObjects();
